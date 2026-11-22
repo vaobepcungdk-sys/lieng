@@ -3424,7 +3424,7 @@ function leaveToSetup(){
    từng khách chỉ chứa bài của chính khách đó (buildView theo từng ghế — xem broadcastViews)
    và được MÃ HOÁ ĐẦU-CUỐI bằng khoá riêng của kênh khách đó (ECDH + AES-GCM — xem mqEncrypt),
    vì broker công cộng không có ACL: ai biết mã phòng cũng subscribe được mọi topic. */
-var BUILD_VERSION = "2026-11-22-lieng-r1";
+var BUILD_VERSION = "2026-11-22-lieng-r2";
 /* Danh sách máy chủ chuyển tiếp dự phòng — thử/dò THEO THỨ TỰ: cổng 443 trước (hầu như mạng nào
    cũng cho qua), rồi các cổng WebSocket khác đã kiểm chứng sống. */
 var MQTT_BROKERS = [
@@ -5076,7 +5076,7 @@ $("btnDiscMenu").addEventListener("click", function(){ $("modalDisconnect").clas
 /* ---------- Gợi ý TRÌNH DUYỆT TÍCH HỢP trong ứng dụng chat (heuristic user agent) ----------
    Chỉ là GỢI Ý, tắt được, tuyệt đối không chặn ai. Trình duyệt tích hợp của Zalo/Facebook/Messenger
    hay giữ tab không ổn định / chặn kết nối ra máy chủ chuyển tiếp nên người dùng ở đó rất hay không vào được phòng. */
-var GAME_LINK="https://lieng-online.vercel.app";
+var GAME_LINK="https://vaobepcungdk-sys.github.io/lieng/";
 var _inappDismissed=false;
 function isInAppBrowser(){
   var ua=(navigator.userAgent||"");
