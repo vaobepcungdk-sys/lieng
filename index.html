@@ -696,6 +696,7 @@
               <li><b>Trên bàn:</b> chủ phòng có huy hiệu 👑, máy có 🤖 và tên “Máy • …”, người xem có 👁; bài đã úp KHÔNG bị lật ở khâu so bài; máy cấp 3 bớt úp bài trung bình 5–9 điểm; POT/kết quả ván không còn hiện lệch nhịp; chỉ báo lượt lấy từ một nguồn duy nhất.</li>
               <li><b>Form vào phòng:</b> ẩn hẳn ô số người/vốn/gà (setting do chủ phòng quyết định), mã phòng được kiểm tra ngay khi gõ (4–6 ký tự A–Z/0–9).</li>
               <li><b>Đổi cơ chế kết nối online (đợt mới nhất):</b> bỏ hẳn kết nối trực tiếp ngang hàng (P2P/WebRTC) hay kẹt giữa các mạng khác nhau — nay cả chủ phòng lẫn khách đều nối ra <b>máy chủ chuyển tiếp tin nhắn</b> (MQTT), có nhiều máy chủ dự phòng thử lần lượt, ưu tiên cổng 443 như web thường nên gần như mạng nào cũng vào được. Vào phòng có <b>kiểm tra phiên bản</b>: lệch bản là bị chặn kèm thông báo tải lại trang, không treo. Màn hình Vào phòng vẫn hiện <b>4 bước kết nối</b> (tải thư viện → nối máy chủ chuyển tiếp → tìm phòng → chờ xếp ghế/duyệt) với trạng thái ✓/⏳/✗ và lỗi phân loại rõ (không nối được máy chủ nào / không tìm thấy phòng / lệch phiên bản); bước “chờ chủ phòng duyệt” là trạng thái bình thường — không bị tính là lỗi và không tự kết nối lại. Chủ phòng vẫn là người giữ ván: tin gửi cho mỗi khách chỉ chứa bài của chính khách đó và được mã hoá đầu-cuối bằng khoá riêng của từng khách (broker công cộng ai biết mã phòng cũng nghe được mọi topic, nên bài không bao giờ đi dạng rõ).</li>
+              <li><b>Đường truyền chính mới — Supabase Realtime (bản r3):</b> các broker MQTT công cộng miễn phí lúc được lúc không và cổng của chúng bị nhiều mạng chặn, nên game nay chạy chính qua <b>Supabase Realtime</b> — hạ tầng chuyển tiếp riêng, chạy hẳn trên <b>cổng 443</b> như web thường. Cả chủ phòng lẫn khách đều <b>thử đường chính trước</b>; không nối được mới tự chuyển sang <b>đường dự phòng MQTT</b> như trước và hiện rõ đang dùng đường nào. Hai máy ở hai đường khác nhau vẫn tìm thấy nhau: chủ phòng ở đường chính vẫn đăng ký “biển chỉ đường” lên MQTT, khách ở đường dự phòng đọc được sẽ biết phòng đang ở đường chính mà báo đúng (“phòng đang chạy ở đường truyền chính, mạng của bạn chưa nối được — thử đổi mạng”) thay vì báo sai “không tìm thấy phòng”; ngược lại khách ở đường chính không thấy phòng sẽ tự kiểm tra chéo và chuyển sang đường dự phòng nếu phòng đang ở đó. Mã hoá đầu-cuối từng khách, kiểm tra phiên bản và 4 bước trạng thái giữ nguyên như cũ.</li>
               <li><b>Yêu cầu vào phòng không còn bị mất im lặng:</b> khách chưa nhận được xác nhận vào phòng thì tự gửi lại yêu cầu (tối đa 3 lần); chủ phòng xếp ghế lỗi thì trả lỗi rõ cho người xin và giữ yêu cầu trong danh sách chờ thay vì mất hẳn. Chủ phòng có danh sách <b>⏳ Yêu cầu vào phòng đang chờ</b> ở sảnh và trong bảng Người xem — quét đối chiếu lại mỗi 5 giây, bấm <b>Duyệt</b> là xếp ghế/gửi lại xác nhận/gọi khách gửi lại yêu cầu, <b>Từ chối</b> là đóng kết nối kèm thông báo. Huy hiệu số yêu cầu chờ hiện <b>cả khi bằng 0</b> ở sảnh và trên bàn, để phân biệt “không ai xin” với “yêu cầu bị mất”.</li>
               <li><b>⚔️ So bài ngoài (tính năng mới) + đổi tên “Liêng Bịp”:</b> thêm cược phụ so điểm riêng ngoài pot chính — đăng ký trước (ở màn hình cài đặt/sảnh cho ván 1, hoặc bằng nút <b>⚔️ So ngoài</b> trong lúc ván đang chạy cho ván sau), bàn chốt ngay trước khi chia ván áp dụng: kiểm tra lại tiền từng thành viên (không đủ tiền cược + tiền gà thì loại, có thông báo công khai), dưới 2 người thì hủy không trừ tiền; tiền cược được giữ tách riêng (Bankroll hiện dòng tiền đang giữ). Chỉ tính <b>điểm</b> (Sáp/Liêng Bịp/Đồng hoa quy ra điểm, Đĩ = 0 điểm), bằng điểm phá hòa theo chất; người đã úp ở ván chính vẫn được so và cuối ván bài của thành viên được lật công khai; có tùy chọn lặp lại mỗi ván; tối đa 3 bàn/ván; online do chủ phòng kiểm tra và duyệt mọi yêu cầu như các lệnh khác. Đồng thời toàn bộ tên hiển thị của game nay là <b>“Liêng Bịp”</b> cho vui (chỉ đổi chữ hiển thị — mã phòng, link và giao thức online không đổi).</li>
             </ul>
@@ -2916,7 +2917,11 @@ var net = { mode:"local", role:null, peer:null, code:"", conns:{}, guests:[], st
      hoặc gói xác nhận joined bị mất) — host duyệt/từ chối được, không bao giờ mất im lặng;
      mq/myToken/mqMetaIv/mqHbIv: kết nối MQTT tới máy chủ chuyển tiếp, token kênh riêng của khách,
      vòng làm mới meta phòng (host) và vòng nhịp sống (khách) */
-  seatMoney:{}, joinLog:[], viewSeq:0, pendingJoins:{}, mq:null, myToken:"", mqMetaIv:null, mqHbIv:null };
+  seatMoney:{}, joinLog:[], viewSeq:0, pendingJoins:{}, mq:null, myToken:"", mqMetaIv:null, mqHbIv:null,
+  /* transport: đường truyền đang dùng cho phiên online ("supabase" chính | "mqtt" dự phòng);
+     sb/sbLobby/sbGuestCh: client Supabase + kênh lobby + kênh riêng từng khách (phía host);
+     mqMetaClient: kết nối MQTT CHỈ để đăng ký meta chéo khi chủ phòng đang ở Supabase */
+  transport:"", sb:null, sbLobby:null, sbGuestCh:{}, mqMetaClient:null };
 var guestHandNo = -1, guestHistHand = -1, guestViewSeq = -1;
 var hostSettings = null;
 var pendingRoomCfg = null; // chủ phòng đổi trong trận: {turnTime?, ante?} — áp dụng từ VÁN SAU qua nextHand(), không phá ván đang chạy
@@ -3396,7 +3401,7 @@ function leaveToSetup(){
   mqTeardown();
   guestTeardownTransport();
   stopHostJoinPoll();
-  net = { mode:"local", role:null, peer:null, code:"", conns:{}, guests:[], started:false, lobbyAlive:false, seatCfg:[], lobbyData:null, lseat:-1, hostConn:null, seatMoney:{}, joinLog:[], viewSeq:0, pendingJoins:{}, mq:null, myToken:"", mqMetaIv:null, mqHbIv:null };
+  net = { mode:"local", role:null, peer:null, code:"", conns:{}, guests:[], started:false, lobbyAlive:false, seatCfg:[], lobbyData:null, lseat:-1, hostConn:null, seatMoney:{}, joinLog:[], viewSeq:0, pendingJoins:{}, mq:null, myToken:"", mqMetaIv:null, mqHbIv:null, transport:"", sb:null, sbLobby:null, sbGuestCh:{}, mqMetaClient:null };
   guestHandNo=-1; guestHistHand=-1; guestViewSeq=-1;
   guestIsViewer=false; seatRequested=false; _guestPauseSent=false;
   roomMeta = { viewers:[], pending:0 };
@@ -3424,7 +3429,7 @@ function leaveToSetup(){
    từng khách chỉ chứa bài của chính khách đó (buildView theo từng ghế — xem broadcastViews)
    và được MÃ HOÁ ĐẦU-CUỐI bằng khoá riêng của kênh khách đó (ECDH + AES-GCM — xem mqEncrypt),
    vì broker công cộng không có ACL: ai biết mã phòng cũng subscribe được mọi topic. */
-var BUILD_VERSION = "2026-11-22-lieng-r2";
+var BUILD_VERSION = "2026-11-22-lieng-r3";
 /* Danh sách máy chủ chuyển tiếp dự phòng — thử/dò THEO THỨ TỰ: cổng 443 trước (hầu như mạng nào
    cũng cho qua), rồi các cổng WebSocket khác đã kiểm chứng sống. */
 var MQTT_BROKERS = [
@@ -3439,6 +3444,65 @@ function randCode(){ var c="ABCDEFGHJKMNPQRSTUVWXYZ23456789", s=""; for(var i=0;
 function randToken(){ var c="abcdefghjkmnpqrstuvwxyz23456789", s=""; for(var i=0;i<20;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
 function mqTopic(code, leaf){ return "lieng/v1/"+code+"/"+leaf; }
 function mqBrokerName(url){ var m=/\/\/([^\/:]+)/.exec(url||""); return m?m[1]:url; }
+/* ================= SUPABASE REALTIME — ĐƯỜNG TRUYỀN CHÍNH (cổng 443) =================
+   Từ bản r3: đường truyền CHÍNH là Supabase Realtime (project riêng của chủ game, chạy hẳn trên
+   cổng 443 như web thường — không mạng nào chặn, không phụ thuộc broker công cộng miễn phí lúc
+   được lúc không). MQTT ở trên giữ nguyên làm đường DỰ PHÒNG: client thử Supabase trước, không
+   nối được mới chuyển MQTT, và hai phía vẫn tra chéo được nhau qua meta MQTT (xem mqMetaPayload:
+   meta nay kèm cờ transport để khách ở đường này biết phòng đang sống ở đường kia).
+   ANON KEY dưới đây là khoá CÔNG KHAI theo thiết kế của Supabase (publishable — nhúng vào client
+   là đúng cách dùng của nó); khoá service_role (toàn quyền) TUYỆT ĐỐI không có trong trang này.
+   Kênh dùng ở đây là kênh broadcast/presence CÔNG KHAI của Realtime — không bảng, không dữ liệu
+   nào lưu phía Supabase; bài của từng khách vẫn mã hoá đầu-cuối ECDH + AES-GCM như bản MQTT,
+   nên dù ai nghe được kênh cũng chỉ thấy phong bì đã mã hoá. */
+var SUPABASE_URL = "https://lhclujbunbapajghsvgh.supabase.co";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoY2x1amJ1bmJhcGFqZ2hzdmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzNDA4MDUsImV4cCI6MjExMDkxNjgwNX0.qsn471uVQqevJuVemGbBakQK-iI48it7YHbhl_RPeUw";
+/* supabase-js NẠP LƯỜI như mqtt.js: chỉ nạp khi người dùng chọn Online; ghim phiên bản + SRI. */
+var _sbLoadState = "idle"; // idle | loading | ok
+var _sbLoadCbs = [];
+function ensureSupabase(cb){
+  if(typeof supabase!=="undefined" && supabase.createClient){ _sbLoadState="ok"; cb(true); return; }
+  _sbLoadCbs.push(cb);
+  if(_sbLoadState==="loading") return;
+  _sbLoadState="loading";
+  var settled=false;
+  function finish(ok){
+    if(settled) return; settled=true;
+    _sbLoadState = ok ? "ok" : "idle";
+    var cbs=_sbLoadCbs; _sbLoadCbs=[];
+    cbs.forEach(function(f){ try{ f(ok); }catch(e){} });
+  }
+  var sc=document.createElement("script");
+  sc.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js";
+  sc.integrity="sha384-sLWJsCmP+Z4Qn+HgF7Hi64Djta4fZMu0fcgi3uUL3GFV/ubx2G86LPOuMf7+ZIyX";
+  sc.crossOrigin="anonymous";
+  sc.async=true;
+  sc.onload=function(){ finish(typeof supabase!=="undefined" && !!supabase.createClient); };
+  sc.onerror=function(){ finish(false); };
+  setTimeout(function(){ finish(typeof supabase!=="undefined" && !!supabase.createClient); }, 15000);
+  (document.head||document.documentElement).appendChild(sc);
+}
+function sbNewClient(){
+  try{ return supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { realtime:{ params:{ eventsPerSecond:20 } } }); }
+  catch(e){ return null; }
+}
+/* Tên kênh theo đúng thiết kế phòng: lobby cho discovery/presence + kênh riêng từng khách */
+function sbLobbyName(code){ return "lieng-v1-"+code+"-lobby"; }
+function sbGuestName(code, token){ return "lieng-v1-"+code+"-g-"+token; }
+/* Dọn kết nối Supabase của máy này: khách báo "bye" cho chủ phòng qua kênh lobby trước khi rời
+   (presence leave cũng tự báo cho chủ phòng biết khách đã đi); chủ phòng rời kênh lobby thì
+   presence của chủ biến mất -> khách nhận biết "chủ phòng đã thoát" qua presence leave. */
+function sbTeardown(){
+  try{
+    if(net.sb && net.sbLobby && net.role==="guest" && net.myToken){
+      net.sbLobby.send({ type:"broadcast", event:"to-host", payload:{ from:net.myToken, bye:true } });
+    }
+  }catch(e){}
+  if(net.sbLobby && net.peer===net.sbLobby) net.peer=null;
+  net.sbLobby=null; net.sbGuestCh={};
+  var sb=net.sb; net.sb=null;
+  if(sb){ try{ sb.removeAllChannels(); }catch(e){} try{ sb.disconnect(); }catch(e){} }
+}
 /* ---------- mqtt.js NẠP LƯỜI (lazy): chỉ nạp khi người dùng thực sự chọn Online ----------
    Trang + chơi với máy KHÔNG phụ thuộc mqtt.js: không có thẻ script blocking nào trong <head>/body.
    Nếu CDN jsdelivr không tải được, chỉ luồng Online báo lỗi rõ — chơi với máy vẫn chạy bình thường. */
@@ -3514,14 +3578,23 @@ function mqHostKeys(){
     return crypto.subtle.exportKey("raw", kp.publicKey);
   }).then(function(raw){ _hostPubB64=mqB64(raw); return _hostPubB64; });
 }
-/* Meta phòng: chỉ phiên bản + khoá công khai + mốc thời gian — KHÔNG tên, KHÔNG dữ liệu ván */
-function mqMetaPayload(){ return { v:BUILD_VERSION, pk:_hostPubB64, ts:Date.now() }; }
+/* Meta phòng: phiên bản + khoá công khai + mốc thời gian + CỜ ĐƯỜNG TRUYỀN của chủ phòng
+   ("supabase" khi chủ phòng ở đường chính, "mqtt" khi ở đường dự phòng) — KHÔNG tên, KHÔNG dữ
+   liệu ván. Khách ở đường MQTT đọc cờ này để biết phòng đang sống ở đường nào mà báo đúng. */
+function mqMetaPayload(){ return { v:BUILD_VERSION, pk:_hostPubB64, ts:Date.now(), transport:(net.transport==="mqtt" ? "mqtt" : "supabase") }; }
 /* Dọn kết nối MQTT khi rời phòng / giải tán: khách báo "bye" cho chủ phòng; chủ phòng XOÁ retained
    meta + lobby (phòng biến mất khỏi máy chủ chuyển tiếp) trước khi ngắt. Mất kết nối đột ngột đã có
    Last Will lo: chủ phòng mất kết nối -> broker tự xoá meta; khách mất kết nối -> broker gửi "bye" thay. */
 function mqTeardown(){
   if(net.mqMetaIv){ clearInterval(net.mqMetaIv); net.mqMetaIv=null; }
   if(net.mqHbIv){ clearInterval(net.mqHbIv); net.mqHbIv=null; }
+  sbTeardown(); // dọn đường truyền chính (Supabase) nếu đang dùng — khách gửi bye, chủ phòng rời kênh lobby
+  /* Kết nối meta chéo (chủ phòng ở Supabase đăng ký meta lên MQTT): xoá retained meta rồi ngắt */
+  var mc=net.mqMetaClient; net.mqMetaClient=null;
+  if(mc){
+    try{ if(net.role==="host" && net.code) mc.publish(mqTopic(net.code,"meta"), "", { retain:true, qos:1 }); }catch(e){}
+    setTimeout(function(){ try{ mc.end(true); }catch(e){} }, 300);
+  }
   var client=net.mq; net.mq=null; net.peer=null;
   if(!client) return;
   var ended=false;
@@ -3544,13 +3617,18 @@ function onStart(){
   if(!validateSetup()) return;
   if(settings.mode==="online" && net.lobbyAlive){ showScreen("screen-lobby"); if(net.role==="host") lobbyRender(); else if(net.lobbyData) renderGuestLobby(); return; } // phòng vẫn đang mở — vào lại sảnh chờ thay vì tạo phòng mới
   if(settings.mode==="bot"){ startLocalMatch(); return; }
-  // Online: nạp mqtt.js theo yêu cầu; nạp thất bại chỉ chặn luồng online, hiện lỗi rõ tại màn hình cài đặt
+  // Online: nạp CẢ HAI thư viện theo yêu cầu (Supabase = đường chính, mqtt.js = đường dự phòng);
+  // một trong hai nạp được là đi tiếp — chọn đường truyền diễn ra trong hostCreate/guestJoin.
   var btn=$("btnStart"); var oldTxt=btn.textContent; btn.disabled=true; btn.textContent="Đang tải kết nối online…";
-  ensureMqtt(function(ok){
+  var libRes={ sb:null, mq:null };
+  function maybeGo(){
+    if(libRes.sb===null || libRes.mq===null) return;
     btn.disabled=false; btn.textContent=oldTxt;
-    if(!ok || typeof mqtt==="undefined"){ alert2("Không tải được thư viện kết nối online (mqtt.js từ CDN). Kiểm tra mạng rồi bấm thử lại — chế độ Chơi với máy vẫn dùng được bình thường."); return; }
+    if(!libRes.sb && !libRes.mq){ alert2("Không tải được thư viện kết nối online (cả đường truyền chính lẫn dự phòng đều lỗi tải từ CDN). Kiểm tra mạng rồi bấm thử lại — chế độ Chơi với máy vẫn dùng được bình thường."); return; }
     if(settings.role==="host") hostCreate(); else guestJoin();
-  });
+  }
+  ensureSupabase(function(ok){ libRes.sb=ok; maybeGo(); });
+  ensureMqtt(function(ok){ libRes.mq=ok; maybeGo(); });
 }
 function alert2(msg){ var w=$("setupWarn"); w.textContent=msg; w.classList.remove("hidden"); }
 /* Thông báo mất kết nối cho KHÁCH: hiện modal nổi ở MỌI màn hình (cài đặt / lobby / đang chơi),
@@ -3580,14 +3658,25 @@ function hostCreate(codeOverride){
   net.seatMoney={}; net.joinLog=[];
   net.lobbyData=null; net.lseat=0;
   _hostCodeRetries=0;
-  ensureMqtt(function(ok){
+  if(!mqCryptoOk()){ alert2("Trình duyệt này không hỗ trợ mã hoá kết nối (WebCrypto) — hãy mở game bằng Chrome/Safari bản mới qua địa chỉ https rồi thử lại. Chế độ Chơi với máy vẫn dùng được bình thường."); showScreen("screen-setup"); return; }
+  /* Chọn đường truyền: thử Supabase (đường chính, cổng 443) trước; không dùng được mới rơi về MQTT */
+  ensureSupabase(function(okSb){
     if(net.role!=="host") return;
-    if(!ok || typeof mqtt==="undefined"){ alert2("Không tải được thư viện kết nối online (mqtt.js từ CDN). Kiểm tra mạng rồi thử tạo phòng lại."); showScreen("screen-setup"); return; }
-    if(!mqCryptoOk()){ alert2("Trình duyệt này không hỗ trợ mã hoá kết nối (WebCrypto) — hãy mở game bằng Chrome/Safari bản mới qua địa chỉ https rồi thử lại. Chế độ Chơi với máy vẫn dùng được bình thường."); showScreen("screen-setup"); return; }
-    mqHostTryBroker(0);
+    if(okSb && typeof supabase!=="undefined" && supabase.createClient){ sbHostStart(); return; }
+    mqHostFallbackStart();
   });
   startHostJoinPoll(); // poll dự phòng 5s: đối chiếu danh sách chờ + gọi khách kẹt gửi lại yêu cầu + quét khách mất tín hiệu
   saveHostSession();
+}
+/* Chủ phòng rơi về đường DỰ PHÒNG (MQTT): khi thư viện Supabase không tải được hoặc kết nối
+   Supabase không mở được phòng trong thời gian chờ. Toàn bộ cơ chế MQTT cũ giữ nguyên. */
+function mqHostFallbackStart(){
+  ensureMqtt(function(ok){
+    if(net.role!=="host") return;
+    if(!ok || typeof mqtt==="undefined"){ alert2("Không tải được thư viện kết nối online và đường truyền chính (Supabase) cũng không sẵn sàng. Kiểm tra mạng rồi thử tạo phòng lại."); showScreen("screen-setup"); return; }
+    net.transport="mqtt";
+    mqHostTryBroker(0);
+  });
 }
 function mqHostTryBroker(i){
   if(net.role!=="host" || net.mode!=="online") return;
@@ -3684,6 +3773,164 @@ function mqHostOpenRoom(url){
     showScreen("screen-setup");
   });
 }
+/* ================= SUPABASE — CHỦ PHÒNG (đường truyền chính) =================
+   Phòng sống trên kênh lobby lieng-v1-<CODE>-lobby:
+   - Presence của chủ phòng {role:"host", v, pub} = dấu hiệu "phòng tồn tại" cho khách dò tìm
+     (thay retained meta của MQTT; vẫn kèm phiên bản + khoá công khai ECDH như meta cũ).
+   - Khách -> chủ phòng: broadcast event "to-host" trên kênh lobby (phong bì mã hoá như cũ).
+   - Chủ phòng -> từng khách: kênh riêng lieng-v1-<CODE>-g-<token>, broadcast event "msg".
+   - Presence của khách {role:"guest", token}: khách rời kênh = chủ phòng biết ngay khách mất
+     kết nối (kết hợp nhịp sống hb + quét lastSeen 30s như cũ).
+   Đồng thời chủ phòng VẪN đăng ký meta lên MQTT (retained, cờ transport:"supabase") để khách
+   chỉ nối được đường dự phòng vẫn tra thấy phòng và nhận thông báo đúng sự thật. */
+function sbHostStart(){
+  net.transport="supabase";
+  var code0=net.code;
+  mqHostKeys().then(function(){
+    if(net.role!=="host" || net.code!==code0 || net.transport!=="supabase") return;
+    var sb=sbNewClient();
+    if(!sb){ sbHostFailover(); return; }
+    net.sb=sb;
+    var lobby=sb.channel(sbLobbyName(net.code), { config:{ presence:{ key:"host" }, broadcast:{ self:false } } });
+    net.sbLobby=lobby; net.peer=lobby;
+    var stage=0, failed=false; // stage 0: chờ presence sync đầu để chốt phòng; 1: phòng đã mở
+    var to=setTimeout(function(){ if(stage===0 && !failed){ failed=true; sbHostFailover(); } }, 9000);
+    lobby.on("broadcast", { event:"to-host" }, function(m){ sbHostOnEnvelope(m && m.payload); });
+    lobby.on("presence", { event:"leave" }, function(e){ sbHostPresenceLeave(e); });
+    lobby.on("presence", { event:"sync" }, function(){
+      if(stage!==0 || failed || net.sbLobby!==lobby) return;
+      /* Sync đầu tiên TRƯỚC khi mình track: có mặt host nào khác = mã đã có phòng sống -> đổi mã */
+      var st=lobby.presenceState(), taken=false;
+      Object.keys(st).forEach(function(k){ (st[k]||[]).forEach(function(m){ if(m && m.role==="host") taken=true; }); });
+      if(taken){
+        clearTimeout(to);
+        if(_hostCodeRetries>=5){ failed=true; sbTeardown(); alert2("Không tìm được mã phòng trống sau 5 lần thử. Kiểm tra mạng rồi thử lại."); showScreen("screen-setup"); return; }
+        _hostCodeRetries++;
+        sbTeardown();
+        net.code=randCode();
+        sbHostStart();
+        return;
+      }
+      stage=1; clearTimeout(to);
+      lobby.track({ role:"host", v:BUILD_VERSION, pub:_hostPubB64 });
+      net.lobbyAlive=true;
+      showScreen("screen-lobby");
+      $("lobbyCode").textContent=net.code;
+      lobbyRender();
+      reconcilePendingJoins();
+      toast("📡 Phòng đang mở qua đường truyền chính (Supabase)");
+      sbRegisterMqttMeta();
+      /* Làm mới meta chéo mỗi 60s như nhịp meta MQTT cũ */
+      if(net.mqMetaIv) clearInterval(net.mqMetaIv);
+      net.mqMetaIv=setInterval(function(){
+        if(net.role!=="host" || net.transport!=="supabase" || !net.mqMetaClient) return;
+        try{ net.mqMetaClient.publish(mqTopic(net.code,"meta"), JSON.stringify(mqMetaPayload()), { retain:true, qos:1 }); }catch(e){}
+      }, 60000);
+    });
+    lobby.subscribe(function(status){
+      if(net.sbLobby!==lobby) return;
+      if((status==="CHANNEL_ERROR" || status==="TIMED_OUT" || status==="CLOSED") && stage===0 && !failed){
+        failed=true; clearTimeout(to); sbHostFailover();
+      }
+    });
+  }).catch(function(){ sbHostFailover(); });
+}
+/* Đường chính không mở được phòng -> dọn dẹp và rơi về MQTT (giữ nguyên cơ chế cũ) */
+function sbHostFailover(){
+  sbTeardown();
+  net.transport="";
+  toast("⚠️ Không nối được đường truyền chính — đang chuyển sang đường dự phòng (MQTT)…");
+  mqHostFallbackStart();
+}
+/* Đăng ký meta chéo lên MQTT: thử lần lượt các broker như cũ, giữ 1 kết nối CHỈ để giữ retained
+   meta + Last Will xoá meta khi chủ phòng mất kết nối. Tin game KHÔNG đi qua kết nối này.
+   Không nối được broker nào thì bỏ qua — phòng trên Supabase vẫn chơi bình thường. */
+function sbRegisterMqttMeta(){
+  if(typeof mqtt==="undefined") return;
+  var code=net.code;
+  function tryBroker(i){
+    if(net.role!=="host" || net.code!==code || net.transport!=="supabase") return;
+    if(i>=MQTT_BROKERS.length) return;
+    var client=null, done=false;
+    var to=setTimeout(function(){ if(done) return; done=true; try{ if(client) client.end(true); }catch(e){} tryBroker(i+1); }, 5000);
+    try{ client=mqtt.connect(MQTT_BROKERS[i], { clientId:"lieng-meta-"+randToken().slice(0,8), connectTimeout:4500, reconnectPeriod:0, clean:true,
+      will:{ topic:mqTopic(code,"meta"), payload:"", retain:true, qos:1 } }); }
+    catch(e){ clearTimeout(to); tryBroker(i+1); return; }
+    client.on("error", function(){ if(done) return; done=true; clearTimeout(to); try{ client.end(true); }catch(e){} tryBroker(i+1); });
+    client.on("connect", function(){
+      if(done) return; done=true; clearTimeout(to);
+      if(net.role!=="host" || net.code!==code || net.transport!=="supabase"){ try{ client.end(true); }catch(e){} return; }
+      net.mqMetaClient=client;
+      try{ client.publish(mqTopic(code,"meta"), JSON.stringify(mqMetaPayload()), { retain:true, qos:1 }); }catch(e){}
+    });
+  }
+  tryBroker(0);
+}
+/* Khách rời kênh lobby (presence leave) = khách mất kết nối / đóng tab: xử lý như gói "bye" */
+function sbHostPresenceLeave(e){
+  if(net.role!=="host" || net.transport!=="supabase") return;
+  var metas=(e && e.leftPresences)||[];
+  metas.forEach(function(m){ if(m && m.role==="guest" && m.token) sbHostGuestGone(String(m.token)); });
+}
+function sbHostGuestGone(token){
+  var c=net.conns[token]; if(!c) return;
+  c.open=false;
+  if(!c._joined) hostJoinLog("Một kết nối xin vào đã ngắt trước khi vào được phòng.");
+  dropPendingJoin(token);
+  hostGuestGone(c);
+  sbCloseGuestChannel(token);
+  delete net.conns[token];
+}
+/* Kênh riêng của 1 khách phía host: mở lười khi khách đầu tiên liên lạc; tin gửi trước khi kênh
+   SUBSCRIBED xong thì xếp hàng trong kênh, mở xong phát ngay (không mất gói joined/view đầu). */
+function sbOpenGuestChannel(token){
+  if(!net.sb || net.sbGuestCh[token]) return;
+  var ch=net.sb.channel(sbGuestName(net.code, token), { config:{ broadcast:{ self:false } } });
+  ch._ready=false; ch._q=[];
+  net.sbGuestCh[token]=ch;
+  ch.subscribe(function(status){
+    if(status==="SUBSCRIBED"){
+      ch._ready=true;
+      var q=ch._q; ch._q=[]; q.forEach(function(p){ sbSendToGuest(token, p); });
+      var c=net.conns[token]; if(c) mqFlushConnQueue(c);
+    }
+  });
+}
+function sbSendToGuest(token, payload){
+  var ch=net.sbGuestCh[token]; if(!ch) return;
+  if(!ch._ready){ ch._q.push(payload); return; }
+  try{ ch.send({ type:"broadcast", event:"msg", payload:payload }); }catch(e){}
+}
+function sbCloseGuestChannel(token){
+  var ch=net.sbGuestCh[token]; if(!ch) return;
+  delete net.sbGuestCh[token];
+  try{ if(net.sb) net.sb.removeChannel(ch); else ch.unsubscribe(); }catch(e){}
+}
+/* Kết nối ẢO cho 1 khách phía chủ phòng trên Supabase — cùng giao diện conn như bản MQTT:
+   send = broadcast xuống ĐÚNG kênh riêng của khách đó, phong bì mã hoá giữ nguyên. */
+function sbGetHostConn(token){
+  var c=net.conns[token];
+  if(c && c.open!==false) return c;
+  c={ peer:token, open:true, _joined:false, lastSeen:Date.now(), _key:null, _sendQ:[], _chain:null, _announced:false,
+    send:function(msg){
+      if(c.open===false) return;
+      if(msg && msg.t==="versionMismatch"){ sbSendToGuest(token, { v:BUILD_VERSION, msg:msg }); return; }
+      if(!c._key){ c._sendQ.push(msg); return; }
+      mqEncrypt(c._key, JSON.stringify(msg)).then(function(enc){
+        if(c.open!==false) sbSendToGuest(token, { v:BUILD_VERSION, enc:enc });
+      }).catch(function(){});
+    },
+    close:function(){ c.open=false; sbCloseGuestChannel(token); } };
+  net.conns[token]=c;
+  net.guests.forEach(function(g){ if(g.peerId===token) g.conn=c; });
+  var pe=(net.pendingJoins||{})[token]; if(pe) pe.conn=c;
+  sbOpenGuestChannel(token);
+  return c;
+}
+function sbHostOnEnvelope(env){
+  if(net.role!=="host" || net.transport!=="supabase") return;
+  hostOnEnvelope(env, sbGetHostConn, sbHostGuestGone);
+}
 /* Kết nối ẢO cho 1 khách phía chủ phòng — giữ nguyên giao diện conn.send / conn.open / conn.close /
    conn.peer mà toàn bộ logic sảnh/trận đang dùng: send = phát tin xuống ĐÚNG topic riêng của
    khách đó (to/<token>), không phát tràn cho cả phòng. */
@@ -3729,10 +3976,16 @@ function mqHostGuestBye(token){
 function mqHostOnMessage(topic, payload){
   if(net.role!=="host" || topic!==mqTopic(net.code,"to-host")) return;
   var env=null; try{ env=JSON.parse(payload.toString()); }catch(e){ return; }
+  hostOnEnvelope(env, mqGetHostConn, mqHostGuestBye);
+}
+/* Xử lý 1 phong bì khách -> chủ phòng, DÙNG CHUNG cho cả 2 đường truyền: getConn tạo kết nối ảo
+   của đúng driver (MQTT: mqGetHostConn / Supabase: sbGetHostConn), onBye xử lý gói rời phòng. */
+function hostOnEnvelope(env, getConn, onBye){
+  if(net.role!=="host") return;
   if(!env || !env.from) return;
   var token=String(env.from);
-  if(env.bye){ mqHostGuestBye(token); return; }
-  var conn=mqGetHostConn(token);
+  if(env.bye){ onBye(token); return; }
+  var conn=getConn(token);
   conn.lastSeen=Date.now();
   if(env.v!==BUILD_VERSION){
     try{ conn.send({t:"versionMismatch", need:BUILD_VERSION}); }catch(e){}
@@ -4589,11 +4842,16 @@ function joinStatusHide(){
   $("btnStart").disabled=false;
 }
 /* ---------- Trạng thái phiên VÀO PHÒNG của khách (dùng chung cho các hàm dưới) ---------- */
-var _gJoin = { active:false, joined:false, client:null, token:"", ackIv:null, retries:0, wdTimer:null, brokerIdx:0, anyBroker:false, code:"", kp:null, pubB64:"", key:null, keyReady:false, sendQ:[] };
+var _gJoin = { active:false, joined:false, client:null, token:"", ackIv:null, retries:0, wdTimer:null, brokerIdx:0, anyBroker:false, code:"", kp:null, pubB64:"", key:null, keyReady:false, sendQ:[], transport:"", sb:null, sbLobby:null, sbGuestCh:null, sbWd:null, sbDownSince:0 };
 function guestTeardownTransport(){
   if(_gJoin.ackIv){ clearInterval(_gJoin.ackIv); _gJoin.ackIv=null; }
   if(_gJoin.wdTimer){ clearTimeout(_gJoin.wdTimer); _gJoin.wdTimer=null; }
+  if(_gJoin.sbWd){ clearInterval(_gJoin.sbWd); _gJoin.sbWd=null; }
   if(_gJoin.client){ try{ _gJoin.client.end(true); }catch(e){} if(net.mq===_gJoin.client) net.mq=null; if(net.peer===_gJoin.client) net.peer=null; _gJoin.client=null; }
+  /* Client Supabase của phiên dò phòng (chưa chốt phòng): ngắt riêng; client đã chốt phòng nằm ở net.sb */
+  var sbx=_gJoin.sb; _gJoin.sb=null; _gJoin.sbLobby=null; _gJoin.sbGuestCh=null;
+  if(sbx && sbx!==net.sb){ try{ sbx.removeAllChannels(); }catch(e){} try{ sbx.disconnect(); }catch(e){} }
+  sbTeardown();
 }
 function guestJoinFail(step, msg){
   if(!_gJoin.active && _gJoin.joined) return;
@@ -4619,10 +4877,10 @@ function guestJoin(){
   resetGuestDcFlag();
   joinStepsReset();
   joinStatusShow(code);
-  if(typeof mqtt==="undefined"){
+  if(typeof mqtt==="undefined" && typeof supabase==="undefined"){
     joinStepFail(1, "Không tải được thư viện kết nối.");
     _joinUi.stage="Không vào được phòng"; joinStatusFreeze();
-    alert2("Không tải được thư viện kết nối online (mqtt.js từ CDN). Kiểm tra mạng rồi tải lại trang và thử lại.");
+    alert2("Không tải được thư viện kết nối online (cả đường truyền chính lẫn dự phòng đều lỗi tải). Kiểm tra mạng rồi tải lại trang và thử lại.");
     return;
   }
   if(!mqCryptoOk()){
@@ -4633,7 +4891,7 @@ function guestJoin(){
   }
   joinStepSet(1,"done");
   guestTeardownTransport();
-  _gJoin = { active:true, joined:false, client:null, token:randToken(), ackIv:null, retries:0, wdTimer:null, brokerIdx:0, anyBroker:false, code:code, kp:null, pubB64:"", key:null, keyReady:false, sendQ:[] };
+  _gJoin = { active:true, joined:false, client:null, token:randToken(), ackIv:null, retries:0, wdTimer:null, brokerIdx:0, anyBroker:false, code:code, kp:null, pubB64:"", key:null, keyReady:false, sendQ:[], transport:"", sb:null, sbLobby:null, sbGuestCh:null, sbWd:null, sbDownSince:0 };
   net.myToken=_gJoin.token;
 
   _joinCancel=function(){
@@ -4646,8 +4904,182 @@ function guestJoin(){
   };
 
   joinStepSet(2,"doing");
-  joinStatusStage("Đang nối máy chủ chuyển tiếp", "Đang thử lần lượt các máy chủ chuyển tiếp tin nhắn…");
-  guestProbeBroker(0);
+  joinStatusStage("Đang nối máy chủ chuyển tiếp", "Đang thử đường truyền chính (Supabase, cổng 443) trước…");
+  guestTrySupabase();
+}
+/* ================= SUPABASE — KHÁCH (đường truyền chính) =================
+   Khách join kênh lobby lieng-v1-<CODE>-lobby, track presence {role:"guest", token} và chờ
+   presence sync: thấy presence của chủ phòng = phòng tồn tại (kiểm tra v ngay tại đây — lệch
+   bản chặn ở bước 3 như bản MQTT). Tối đa ~8 giây cho cả bước nối + tìm phòng; không thấy /
+   lỗi kênh -> KHÔNG kết luận vội: tra chéo meta MQTT trước (guestCrossCheckMqtt) để phân biệt
+   "phòng đang ở đường dự phòng" / "phòng ở đường chính nhưng mạng mình không tới được" /
+   "thật sự không có phòng". */
+function guestTrySupabase(){
+  if(!_gJoin.active) return;
+  if(typeof supabase==="undefined" || !supabase.createClient){ guestCrossCheckMqtt(); return; }
+  var code=_gJoin.code, token=_gJoin.token;
+  var sb=sbNewClient(); if(!sb){ guestCrossCheckMqtt(); return; }
+  _gJoin.sb=sb;
+  var lobby=sb.channel(sbLobbyName(code), { config:{ presence:{ key:token }, broadcast:{ self:false } } });
+  _gJoin.sbLobby=lobby;
+  var settled=false;
+  var deadline=setTimeout(function(){ if(!settled){ settled=true; guestSupabaseMiss(); } }, 8000);
+  lobby.on("presence", { event:"sync" }, function(){
+    if(settled || !_gJoin.active) return;
+    var st=lobby.presenceState(), hostMeta=null;
+    Object.keys(st).forEach(function(k){ (st[k]||[]).forEach(function(m){ if(m && m.role==="host" && !hostMeta) hostMeta=m; }); });
+    if(!hostMeta) return; // chưa thấy chủ phòng — chờ tiếp tới deadline, không kết luận vội
+    settled=true; clearTimeout(deadline);
+    if(hostMeta.v!==BUILD_VERSION || !hostMeta.pub){
+      _gJoin.active=false;
+      guestJoinFail(3, "Phiên bản game không khớp với chủ phòng — hãy tải lại trang (Ctrl+F5) để cập nhật bản mới nhất rồi vào lại phòng.");
+      return;
+    }
+    guestSbFoundRoom(sb, lobby, hostMeta.pub);
+  });
+  lobby.on("presence", { event:"leave" }, function(e){
+    /* Chủ phòng rời kênh lobby = phòng đã đóng / chủ phòng mất kết nối */
+    var left=(e && e.leftPresences)||[];
+    var hostLeft=false;
+    left.forEach(function(m){ if(m && m.role==="host") hostLeft=true; });
+    if(!hostLeft) return;
+    if(_gJoin.joined) showGuestDisconnect("Chủ phòng đã đóng phòng hoặc mất kết nối. Ván đấu không thể tiếp tục đồng bộ được nữa.");
+    else if(settled && _gJoin.active) guestJoinFail(3, "Chủ phòng vừa đóng phòng "+code+" — hãy xin mã phòng mới hoặc chờ chủ phòng tạo lại phòng.");
+  });
+  lobby.subscribe(function(status){
+    if(status==="SUBSCRIBED"){
+      try{ lobby.track({ role:"guest", token:token }); }catch(e){}
+      joinStepSet(2,"done"); joinStepSet(3,"doing");
+      joinStatusStage("Đã nối đường truyền chính — đang tìm phòng "+code, "Đường truyền: Supabase (cổng 443)");
+      var ice=$("joinIceNote"); if(ice) ice.textContent="Đang dùng đường truyền chính: Supabase";
+    } else if(status==="CHANNEL_ERROR" || status==="TIMED_OUT"){
+      if(!settled){ settled=true; clearTimeout(deadline); guestSupabaseMiss(); }
+    }
+  });
+}
+/* Đường chính không thấy phòng / lỗi kênh: dọn client dò rồi tra chéo meta MQTT */
+function guestSupabaseMiss(){
+  if(!_gJoin.active) return;
+  var sb=_gJoin.sb; _gJoin.sb=null; _gJoin.sbLobby=null;
+  if(sb){ try{ sb.removeAllChannels(); }catch(e){} try{ sb.disconnect(); }catch(e){} }
+  guestCrossCheckMqtt();
+}
+/* Đã thấy phòng trên Supabase: chốt client + kênh lobby vào net, mở kênh riêng g-<token> nhận
+   tin chủ phòng -> khách, dựng hostConn ảo (mọi tin mã hoá, gửi broadcast "to-host" trên lobby),
+   bắt tay ECDH như bản MQTT rồi vào bước chờ duyệt (guestBeginJoinWait dùng chung). */
+function guestSbFoundRoom(sb, lobby, hostPubB64){
+  var code=_gJoin.code, token=_gJoin.token;
+  _gJoin.transport="supabase"; net.transport="supabase";
+  _gJoin.sb=null; _gJoin.sbLobby=null; // quyền sở hữu chuyển sang net.sb / net.sbLobby
+  net.sb=sb; net.sbLobby=lobby;
+  var gch=sb.channel(sbGuestName(code, token), { config:{ broadcast:{ self:false } } });
+  _gJoin.sbGuestCh=gch;
+  gch.on("broadcast", { event:"msg" }, function(m){ guestOnSbMessage(m && m.payload); });
+  gch.subscribe();
+  net.hostConn={ peer:"host", open:true,
+    send:function(msg){
+      if(!_gJoin.keyReady){ _gJoin.sendQ.push(msg); return; }
+      mqEncrypt(_gJoin.key, JSON.stringify(msg)).then(function(enc){
+        try{ lobby.send({ type:"broadcast", event:"to-host", payload:{ from:token, v:BUILD_VERSION, pk:_gJoin.pubB64, enc:enc } }); }catch(e){}
+      }).catch(function(){});
+    },
+    close:function(){ this.open=false; } };
+  /* Nhịp sống cho chủ phòng biết khách còn đó (như bản MQTT) */
+  if(net.mqHbIv) clearInterval(net.mqHbIv);
+  net.mqHbIv=setInterval(function(){ if(net.hostConn && net.hostConn.open){ try{ net.hostConn.send({t:"hb"}); }catch(e){} } }, 5000);
+  /* Watchdog mất kết nối: kênh lobby rời trạng thái "joined" quá 15s khi đã vào phòng -> báo như bản MQTT */
+  if(_gJoin.sbWd) clearInterval(_gJoin.sbWd);
+  _gJoin.sbWd=setInterval(function(){
+    if(!_gJoin.joined && !_gJoin.active){ if(_gJoin.sbWd){ clearInterval(_gJoin.sbWd); _gJoin.sbWd=null; } return; }
+    if(lobby.state==="joined"){ _gJoin.sbDownSince=0; return; }
+    if(!_gJoin.sbDownSince) _gJoin.sbDownSince=Date.now();
+    else if(Date.now()-_gJoin.sbDownSince>15000 && _gJoin.joined && !_guestDcShown){
+      showGuestDisconnect("Đã mất kết nối tới máy chủ chuyển tiếp quá lâu. Ván đấu không thể tiếp tục đồng bộ được nữa.");
+    }
+  }, 3000);
+  /* Bắt tay mã hoá — y hệt bản MQTT */
+  crypto.subtle.generateKey({ name:"ECDH", namedCurve:"P-256" }, true, ["deriveKey"]).then(function(kp){
+    _gJoin.kp=kp;
+    return crypto.subtle.exportKey("raw", kp.publicKey);
+  }).then(function(raw){
+    _gJoin.pubB64=mqB64(raw);
+    return mqDeriveKey(_gJoin.kp.privateKey, hostPubB64);
+  }).then(function(key){
+    if(net.sbLobby!==lobby) return; // đã hủy/rời trong lúc bắt tay
+    _gJoin.key=key; _gJoin.keyReady=true;
+    var q=_gJoin.sendQ; _gJoin.sendQ=[]; q.forEach(function(m){ net.hostConn.send(m); });
+    guestBeginJoinWait();
+  }).catch(function(){
+    if(_gJoin.active) guestJoinFail(3, "Không thiết lập được mã hoá kết nối với chủ phòng — thử vào phòng lại, hoặc tải lại trang (Ctrl+F5).");
+  });
+}
+/* Tin chủ phòng -> khách trên kênh riêng Supabase: cùng kỷ luật như bản MQTT — báo lệch phiên bản
+   đi dạng rõ, mọi tin game còn lại BẮT BUỘC mã hoá bằng khoá riêng của kênh, gói rõ bị bỏ qua. */
+function guestOnSbMessage(env){
+  if(!env) return;
+  if(env.msg && env.msg.t==="versionMismatch"){ guestOnData(env.msg); return; }
+  if(!env.enc || !_gJoin.key) return;
+  mqDecrypt(_gJoin.key, env.enc).then(function(text){
+    var d=null; try{ d=JSON.parse(text); }catch(e){}
+    if(d) guestOnData(d);
+  }).catch(function(){});
+}
+/* TRA CHÉO META MQTT khi đường chính không thấy phòng — chống lệch đường truyền giữa 2 máy:
+   - Meta lệch phiên bản -> chặn như thường.
+   - Meta ghi transport:"supabase" -> phòng CÓ tồn tại ở đường chính nhưng mạng của khách không
+     nối được tới đó: báo đúng sự thật (đổi mạng rồi vào lại), KHÔNG báo "không tìm thấy phòng".
+   - Meta ghi transport:"mqtt" (hoặc meta hợp lệ nói chung) -> phòng đang ở đường dự phòng:
+     tự chuyển sang vòng dò MQTT như cũ để vào phòng đó.
+   - Không thấy meta ở đâu -> vẫn dò MQTT đủ vòng để phân loại lỗi như cũ. */
+function guestCrossCheckMqtt(){
+  if(!_gJoin.active) return;
+  joinStatusStage("Chưa thấy phòng ở đường truyền chính — đang kiểm tra chéo đường dự phòng", "Đang tra meta phòng trên các máy chủ chuyển tiếp dự phòng…");
+  if(typeof mqtt==="undefined"){
+    guestJoinFail(2, "Không nối được máy chủ chuyển tiếp nào. Kiểm tra mạng rồi bấm Vào phòng để thử lại — hoặc thử đổi mạng (4G ↔ Wi-Fi).");
+    return;
+  }
+  var code=_gJoin.code, metaT=mqTopic(code,"meta");
+  var idx=0, anyConn=false, done=false;
+  function finish(meta){
+    if(done) return; done=true;
+    if(!_gJoin.active) return; // khách đã bấm Hủy giữa lúc tra chéo
+    if(anyConn) _gJoin.anyBroker=true;
+    if(meta){
+      if(meta.v!==BUILD_VERSION){
+        guestJoinFail(3, "Phiên bản game không khớp với chủ phòng — hãy tải lại trang (Ctrl+F5) để cập nhật bản mới nhất rồi vào lại phòng.");
+        return;
+      }
+      if(meta.transport==="supabase"){
+        guestJoinFail(3, "Phòng "+code+" đang chạy ở đường truyền chính (Supabase) nhưng mạng của bạn chưa nối được tới đó — thử đổi mạng (4G ↔ Wi-Fi) rồi vào lại phòng.");
+        return;
+      }
+    }
+    _gJoin.transport="mqtt"; net.transport="mqtt";
+    joinStatusStage("Đang nối máy chủ chuyển tiếp", "Đang dùng đường dự phòng (MQTT) — thử lần lượt các máy chủ chuyển tiếp…");
+    guestProbeBroker(0);
+  }
+  function tryNext(){
+    if(done || !_gJoin.active) return;
+    if(idx>=MQTT_BROKERS.length){ finish(null); return; }
+    var url=MQTT_BROKERS[idx++];
+    var client=null, settled=false;
+    var to=setTimeout(function(){ if(settled) return; settled=true; try{ if(client) client.end(true); }catch(e){} tryNext(); }, 3000);
+    try{ client=mqtt.connect(url, { clientId:"lieng-x-"+randToken().slice(0,8), connectTimeout:2600, reconnectPeriod:0, clean:true }); }
+    catch(e){ clearTimeout(to); tryNext(); return; }
+    client.on("error", function(){});
+    client.on("connect", function(){ anyConn=true; try{ client.subscribe(metaT, { qos:1 }); }catch(e){} });
+    client.on("message", function(topic, payload){
+      if(settled || topic!==metaT) return;
+      if(!payload || !payload.length) return; // meta rỗng = không có phòng trên broker này
+      var meta=null; try{ meta=JSON.parse(payload.toString()); }catch(e){}
+      if(!meta) return;
+      settled=true; clearTimeout(to);
+      try{ client.end(true); }catch(e){}
+      finish(meta);
+    });
+    client.on("close", function(){ if(!settled){ settled=true; clearTimeout(to); tryNext(); } });
+  }
+  tryNext();
 }
 /* Dò phòng: thử lần lượt từng máy chủ (~3,5s/máy chủ) — nối được thì nghe topic meta retained của
    mã phòng; thấy meta là chốt máy chủ đó. Phân loại lỗi rõ ở cuối vòng dò: không máy chủ nào nối
@@ -4717,6 +5149,7 @@ function guestProbeBroker(i){
    trong meta) rồi mới gửi yêu cầu join — gói join cũng đi dạng mã hoá. */
 function guestFoundRoom(client, url, hostPubB64){
   var code=_gJoin.code, token=_gJoin.token;
+  _gJoin.transport="mqtt"; net.transport="mqtt";
   net.mq=client; net.peer=client;
   try{ client.options.reconnectPeriod=2500; }catch(e){} // từ đây tự nối lại khi rớt mạng tạm thời
   client.subscribe(mqTopic(code,"to/"+token), { qos:1 });
